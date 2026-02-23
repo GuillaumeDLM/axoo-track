@@ -1,0 +1,32 @@
+import { CarrierService, TrackingResult } from './carrier.interface';
+
+export class ColissimoCarrierService implements CarrierService {
+  readonly id = 'colissimo';
+
+  async track(trackingNumber: string): Promise<TrackingResult> {
+    // Simulation de l'appel à l'API Colissimo
+    console.log(`[Colissimo] Tracking parcel ${trackingNumber}...`);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    return {
+      trackingNumber,
+      status: 'DELIVERED',
+      events: [
+        {
+          status: 'DELIVERED',
+          location: 'Boîte aux lettres',
+          message: 'Votre colis a été livré',
+          date: new Date()
+        },
+        {
+          status: 'OUT_FOR_DELIVERY',
+          location: 'Centre de tri local',
+          message: 'Votre colis est en cours de livraison',
+          date: new Date(Date.now() - 3600000) // 1 hour ago
+        }
+      ]
+    };
+  }
+}
