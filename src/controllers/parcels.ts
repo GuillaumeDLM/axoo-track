@@ -75,7 +75,7 @@ export const getParcel = async (req: AuthRequest, res: Response): Promise<void> 
   }
 
   try {
-    const updatedParcel = await parcelService.syncTracking(trackingNumber, userId);
+    const updatedParcel = await parcelService.syncTracking(trackingNumber as string, userId);
     res.json(updatedParcel);
   } catch (error: any) {
     console.error(`Error tracking parcel ${trackingNumber}:`, error);
