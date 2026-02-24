@@ -72,7 +72,7 @@ resource "kubernetes_secret" "axoo_track_dynatrace" {
   }
 
   data = {
-    TENANT_URL = var.dynatrace_tenant_url
+    TENANT_URL = "${var.dynatrace_tenant_url}/api/v1/deployment/installer/agent/unix/default/latest?arch=x86"
     API_TOKEN  = var.dynatrace_token
   }
 
@@ -531,7 +531,7 @@ resource "kubernetes_daemon_set_v1" "axoo_track_dynatrace" {
           }
 
           env {
-            name = "ONEAGENT_INSTALLER_TENANT_URL"
+            name = "ONEAGENT_INSTALLER_SCRIPT_URL"
             value_from {
               secret_key_ref {
                 name = kubernetes_secret.axoo_track_dynatrace.metadata[0].name
@@ -541,7 +541,7 @@ resource "kubernetes_daemon_set_v1" "axoo_track_dynatrace" {
           }
 
           env {
-            name = "ONEAGENT_INSTALLER_SCRIPT_TOKEN"
+            name = "ONEAGENT_INSTALLER_DOWNLOAD_TOKEN"
             value_from {
               secret_key_ref {
                 name = kubernetes_secret.axoo_track_dynatrace.metadata[0].name

@@ -4,10 +4,10 @@ metadata:
   name: axoo-track-dynatrace-secrets
 type: Opaque
 data:
-  # echo -n "https://wkf10640.live.dynatrace.com" | base64
-  TENANT_URL: aHR0cHM6Ly93a2YxMDY0MC5saXZlLmR5bmF0cmFjZS5jb20=
-  # echo -n "CHANGE_ME_dynatrace_token" | base64
-  API_TOKEN: Q0hBTkdFX01FX2R5bmF0cmFjZV90b2tlbg==
+  # echo -n "https://srb94465.live.dynatrace.com/api/v1/deployment/installer/agent/unix/default/latest?arch=x86" | base64
+  TENANT_URL: aHR0cHM6Ly9zcmI5NDQ2NS5saXZlLmR5bmF0cmFjZS5jb20vYXBpL3YxL2RlcGxveW1lbnQvaW5zdGFsbGVyL2FnZW50L3VuaXgvZGVmYXVsdC9sYXRlc3Q/YXJjaD14ODY=
+  # echo -n "CHANGE_ME_dynatrace_paas_token" | base64
+  API_TOKEN: Q0hBTkdFX01FX2R5bmF0cmFjZV9wYWFzX3Rva2Vu
 
 ---
 
@@ -32,12 +32,12 @@ spec:
           securityContext:
             privileged: true
           env:
-            - name: ONEAGENT_INSTALLER_TENANT_URL
+            - name: ONEAGENT_INSTALLER_SCRIPT_URL
               valueFrom:
                 secretKeyRef:
                   name: axoo-track-dynatrace-secrets
                   key: TENANT_URL
-            - name: ONEAGENT_INSTALLER_SCRIPT_TOKEN
+            - name: ONEAGENT_INSTALLER_DOWNLOAD_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: axoo-track-dynatrace-secrets
