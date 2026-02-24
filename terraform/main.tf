@@ -11,23 +11,23 @@ provider "docker" {}
 
 # ========== Réseau ==========
 
-resource "docker_network" "axoo_network" {
-  name = "axoo-network"
+resource "docker_network" "axoo_track_network" {
+  name = "axoo-track-network"
 }
 
-# ========== PostgreSQL ==========
+# ========== axoo-track-db (PostgreSQL) ==========
 
 resource "docker_image" "postgres" {
   name         = "postgres:16-alpine"
   keep_locally = true
 }
 
-resource "docker_volume" "pg_data" {
-  name = "axoo-pg-data"
+resource "docker_volume" "axoo_track_db_data" {
+  name = "axoo-track-db-data"
 }
 
-resource "docker_container" "postgres" {
-  name  = "axoo-postgres"
+resource "docker_container" "axoo_track_db" {
+  name  = "axoo-track-db"
   image = docker_image.postgres.image_id
 
   env = [
@@ -37,56 +37,56 @@ resource "docker_container" "postgres" {
   ]
 
   networks_advanced {
-    name = docker_network.axoo_network.name
+    name = docker_network.axoo_track_network.name
   }
 
   volumes {
-    volume_name    = docker_volume.pg_data.name
+    volume_name    = docker_volume.axoo_track_db_data.name
     container_path = "/var/lib/postgresql/data"
   }
 
   restart = "unless-stopped"
 }
 
-# ========== API Axoo-Track ==========
+# ========== axoo-track-api ==========
 
-resource "docker_image" "axoo_track" {
-  name = "axoo-track:latest"
+resource "docker_image" "axoo_track_api" {
+  name = "axoo-track-api:latest"
 
   build {
     context    = "${path.module}/../apps/axoo-track-api"
     dockerfile = "Dockerfile"
-    tag        = ["axoo-track:latest"]
+    tag        = ["axoo-track-api:latest"]
   }
 }
 
-resource "docker_container" "axoo_api" {
-  name  = "axoo-api"
-  image = docker_image.axoo_track.image_id
+resource "docker_container" "axoo_track_api" {
+  name  = "axoo-track-api"
+  image = docker_image.axoo_track_api.image_id
 
   env = [
     "PORT=${var.app_port}",
-    "DATABASE_URL=postgresql://${var.db_user}:${var.db_password}@axoo-postgres:5432/${var.db_name}?schema=public",
+    "DATABASE_URL=postgresql://${var.db_user}:${var.db_password}@axoo-track-db:5432/${var.db_name}?schema=public",
     "JWT_SECRET=${var.jwt_secret}",
   ]
 
   networks_advanced {
-    name = docker_network.axoo_network.name
+    name = docker_network.axoo_track_network.name
   }
 
   restart    = "unless-stopped"
-  depends_on = [docker_container.postgres]
+  depends_on = [docker_container.axoo_track_db]
 }
 
-# ========== NGINX Reverse Proxy ==========
+# ========== axoo-track-proxy (NGINX) ==========
 
 resource "docker_image" "nginx" {
   name         = "nginx:alpine"
   keep_locally = true
 }
 
-resource "docker_container" "nginx" {
-  name  = "axoo-nginx"
+resource "docker_container" "axoo_track_proxy" {
+  name  = "axoo-track-proxy"
   image = docker_image.nginx.image_id
 
   ports {
@@ -95,7 +95,7 @@ resource "docker_container" "nginx" {
   }
 
   networks_advanced {
-    name = docker_network.axoo_network.name
+    name = docker_network.axoo_track_network.name
   }
 
   upload {
@@ -104,18 +104,18 @@ resource "docker_container" "nginx" {
   }
 
   restart    = "unless-stopped"
-  depends_on = [docker_container.axoo_api]
+  depends_on = [docker_container.axoo_track_api]
 }
 
-# ========== Dynatrace OneAgent ==========
+# ========== axoo-track-dynatrace ==========
 
 resource "docker_image" "dynatrace" {
   name         = "dynatrace/oneagent:latest"
   keep_locally = true
 }
 
-resource "docker_container" "dynatrace" {
-  name       = "axoo-dynatrace"
+resource "docker_container" "axoo_track_dynatrace" {
+  name       = "axoo-track-dynatrace"
   image      = docker_image.dynatrace.image_id
   privileged = true
 
@@ -131,9 +131,9 @@ resource "docker_container" "dynatrace" {
   }
 
   networks_advanced {
-    name = docker_network.axoo_network.name
+    name = docker_network.axoo_track_network.name
   }
 
   restart    = "unless-stopped"
-  depends_on = [docker_container.axoo_api]
+  depends_on = [docker_container.axoo_track_api]
 }

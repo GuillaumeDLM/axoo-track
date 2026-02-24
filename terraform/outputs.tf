@@ -5,5 +5,5 @@ output "api_url" {
 
 output "network_name" {
   description = "Nom du réseau Docker interne"
-  value       = docker_network.axoo_network.name
+  value       = docker_network.axoo_track_network.name
 }
