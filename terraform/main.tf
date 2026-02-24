@@ -54,7 +54,7 @@ resource "docker_image" "axoo_track" {
   name = "axoo-track:latest"
 
   build {
-    context    = "${path.module}/.."
+    context    = "${path.module}/../apps/axoo-track-api"
     dockerfile = "Dockerfile"
     tag        = ["axoo-track:latest"]
   }
@@ -100,7 +100,7 @@ resource "docker_container" "nginx" {
 
   upload {
     file    = "/etc/nginx/nginx.conf"
-    content = file("${path.module}/../nginx.conf")
+    content = file("${path.module}/nginx.conf")
   }
 
   restart    = "unless-stopped"
